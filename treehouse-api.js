@@ -1,7 +1,6 @@
 // print message to console
 const https = require('https')
 
-const username = 'sabrinaunrein'
 
 function printMessage(username, badgeCount, points) {
   const message =
@@ -9,8 +8,20 @@ function printMessage(username, badgeCount, points) {
     console.log(message);
 }
 
-printMessage('sunrein', 100, 1000);
+function getProfile(username) {
+  const request = https.get(`https://teamtreehouse.com/${username}.json`, response => {
 
-const request = https.get(`https://teamtreehouse.com/${username}.json`, response => {
-  console.dir(response.statusCode);
-});
+    let body = "";
+    response.on('data', data => {
+      body += data.toString();
+    });
+
+    response.on('end', () => {
+      const profile = JSON.parse(body);
+      printMessage(username, profile.badges.length, profile.points.javascript);
+    });
+  });
+}
+
+const users = process.argv.slice(2)
+users.forEach(getProfile);
